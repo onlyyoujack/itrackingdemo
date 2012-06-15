@@ -49,7 +49,7 @@
         [view.layer addSublayer:previewLayer];
 
         canProcessFrame = TRUE;
-        
+        currentImage = nil;
     }
     
     return self;
@@ -59,54 +59,67 @@
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer 
 	   fromConnection:(AVCaptureConnection *)connection 
 {
-    int w = 352;
-    int h = 288;
-    int hh = h/2;
+  //  int w = 352;
+ //   int h = 288;
+//    int hh = h/2;
     
     //uint8_t* frame = (uint8_t*)malloc((w*h)+(h*hh)) ;
     
     CVImageBufferRef img = CMSampleBufferGetImageBuffer(sampleBuffer);
+
     
-    CVPixelBufferLockBaseAddress(img,0);
-    
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
+
     {
-        
-         CIImage* ciimg = [CIImage imageWithCVPixelBuffer:img];
-        __block ERTCaptureSession * bSelf = self;
-        
-        CVPixelBufferUnlockBaseAddress(img,0);
-        
         if(canProcessFrame) {
+            
+            canProcessFrame = FALSE;
+            
+            if(currentImage != nil)
+                [currentImage release];
+            
+            currentImage = [CIImage imageWithCVPixelBuffer:img];
+            [currentImage retain];
+            __block ERTCaptureSession * bSelf = self;
+            
             dispatch_async(dispatch_get_global_queue(0,0), ^{
                 
                 NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
-                bSelf->canProcessFrame = FALSE;
                 
-                CIImage * _img = ciimg;
                 
-                [_img retain];
                 
                 CIDetector* det = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyLow forKey:CIDetectorAccuracy]];
                 
-                NSArray* features = [det featuresInImage:ciimg];
+                NSArray* features = [det featuresInImage:bSelf->currentImage];
                 
                 GLKVector2 leftEyeCenter, rightEyeCenter;
+                
+                int lrCount = 0;
                 
                 for ( CIFaceFeature* f in features)
                 {
                     if(f.hasLeftEyePosition)
                     {
-                        NSLog(@"Has left eye");
                         
+                        leftEyeCenter.x = f.leftEyePosition.x/192.0;
+                        leftEyeCenter.y = f.leftEyePosition.y/144.0;
+                        printf("has left %lf %lf \n", leftEyeCenter.x, leftEyeCenter.y);
+                        
+                        lrCount ++ ;
                     }
                     if(f.hasRightEyePosition)
                     {
-                        NSLog(@"Has right eye");
+                        rightEyeCenter.x = f.rightEyePosition.x/192.0;
+                        rightEyeCenter.y = f.rightEyePosition.y/144.0;
+                        printf("has right %lf %lf \n", rightEyeCenter.x, rightEyeCenter.y);
+                        
+                        lrCount ++ ;
                     }
                 }
+                if(lrCount == 2)
+                {
+                    [bSelf->delegate setEyePositions:leftEyeCenter Right:rightEyeCenter];
+                }
                 
-                [_img release];
                 [p drain];
                 
                 bSelf->canProcessFrame = TRUE;
@@ -117,7 +130,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         
         
     }
-    [pool drain];
     
     //uint8_t* base1 = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(img,0); // Y
     //uint8_t* base2 = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(img,1); // UV

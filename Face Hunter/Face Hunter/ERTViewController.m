@@ -96,6 +96,8 @@ GLfloat gPreviewVerts[16] =
     
     GLuint _texY, _texUV;
     
+    GLKVector2 leftEye, rightEye;
+    
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -111,6 +113,12 @@ GLfloat gPreviewVerts[16] =
 
 @implementation ERTViewController
 
+- (void) setEyePositions:(GLKVector2)left Right:(GLKVector2)right
+{
+    leftEye = left;
+    rightEye = right;
+    
+}
 - (void) checkGLErrors: (int) line
 {
     GLint err = glGetError();
@@ -292,15 +300,15 @@ GLfloat gPreviewVerts[16] =
     
     // Compute the model view matrix for the object rendered with GLKit
     GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
-    modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
-    modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
+    //modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
+    //modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
     
-    self.effect.transform.modelviewMatrix = modelViewMatrix;
+    //self.effect.transform.modelviewMatrix = modelViewMatrix;
     
     // Compute the model view matrix for the object rendered with ES2
-    modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, 1.5f);
-    modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
-    modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
+    //modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, 1.5f);
+    //modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
+    //modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
     
     _normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(modelViewMatrix), NULL);
     
