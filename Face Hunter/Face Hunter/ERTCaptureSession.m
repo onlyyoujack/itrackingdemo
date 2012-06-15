@@ -35,20 +35,21 @@
         cOut.alwaysDiscardsLateVideoFrames = YES;
         [cOut setSampleBufferDelegate:self queue:queue];
         {
-            NSDictionary * videoSettings = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInt: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], (NSString*)kCVPixelBufferPixelFormatTypeKey,nil];
+            NSDictionary * videoSettings = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInt: kCVPixelFormatType_32BGRA], (NSString*)kCVPixelBufferPixelFormatTypeKey,nil];
             
             [cOut setVideoSettings:videoSettings];
+            
         }
-       
         session = [[AVCaptureSession alloc] init];
         [session addInput:camIn];
         [session addOutput: cOut];
-        [session setSessionPreset: AVCaptureSessionPreset352x288];
+        [session setSessionPreset: AVCaptureSessionPresetLow];
         previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
         previewLayer.frame = view.bounds;
         [view.layer addSublayer:previewLayer];
 
-                
+        canProcessFrame = TRUE;
+        
     }
     
     return self;
@@ -62,46 +63,70 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     int h = 288;
     int hh = h/2;
     
-    uint8_t* frame = (uint8_t*)malloc((w*h)+(h*hh)) ;
+    //uint8_t* frame = (uint8_t*)malloc((w*h)+(h*hh)) ;
     
     CVImageBufferRef img = CMSampleBufferGetImageBuffer(sampleBuffer);
     
     CVPixelBufferLockBaseAddress(img,0);
     
-    
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
     {
         
-        CIImage* ciimg = [CIImage imageWithCVPixelBuffer:img];
-    
-        CIDetector* det = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
+         CIImage* ciimg = [CIImage imageWithCVPixelBuffer:img];
+        __block ERTCaptureSession * bSelf = self;
         
-        NSArray* features = [det featuresInImage:ciimg];
+        CVPixelBufferUnlockBaseAddress(img,0);
         
-        GLKVector2 leftEyeCenter, rightEyeCenter;
-        
-        for ( CIFaceFeature* f in features)
-        {
-            if(f.hasLeftEyePosition)
-            {
-                NSLog(@"Has left eye");
-            
-            }
-            if(f.hasRightEyePosition)
-            {
-                NSLog(@"Has right eye");
-            }
+        if(canProcessFrame) {
+            dispatch_async(dispatch_get_global_queue(0,0), ^{
+                
+                NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
+                bSelf->canProcessFrame = FALSE;
+                
+                CIImage * _img = ciimg;
+                
+                [_img retain];
+                
+                CIDetector* det = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyLow forKey:CIDetectorAccuracy]];
+                
+                NSArray* features = [det featuresInImage:ciimg];
+                
+                GLKVector2 leftEyeCenter, rightEyeCenter;
+                
+                for ( CIFaceFeature* f in features)
+                {
+                    if(f.hasLeftEyePosition)
+                    {
+                        NSLog(@"Has left eye");
+                        
+                    }
+                    if(f.hasRightEyePosition)
+                    {
+                        NSLog(@"Has right eye");
+                    }
+                }
+                
+                [_img release];
+                [p drain];
+                
+                bSelf->canProcessFrame = TRUE;
+                
+            });
         }
+        //[ciimg release];
+        
         
     }
+    [pool drain];
     
-    uint8_t* base1 = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(img,0); // Y
-    uint8_t* base2 = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(img,1); // UV
+    //uint8_t* base1 = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(img,0); // Y
+    //uint8_t* base2 = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(img,1); // UV
     
-    memcpy(frame,base1, w*h);
-    memcpy(frame+(w*h),base2, w*hh);
+    //memcpy(frame,base1, w*h);
+    //memcpy(frame+(w*h),base2, w*hh);
     
-    CVPixelBufferUnlockBaseAddress(img,0);
-    
+
+    /*
     void (^updateTex)(void) = ^{
         [delegate updateTextureData:frame];
     };
@@ -113,7 +138,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         updateTex();
     } else {
         dispatch_sync(dispatch_get_main_queue(), updateTex);
-    }
+    }*/
 }
 
 - (void) startRecording{

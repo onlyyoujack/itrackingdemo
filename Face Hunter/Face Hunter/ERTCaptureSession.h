@@ -18,6 +18,9 @@
     
     id<ERTGLCameraOutputProtocol> delegate;
     AVAssetWriterInputPixelBufferAdaptor *pbAdaptor;
+    
+    BOOL canProcessFrame;
+    
 }
 @property (assign) id<ERTGLCameraOutputProtocol> delegate;
 
