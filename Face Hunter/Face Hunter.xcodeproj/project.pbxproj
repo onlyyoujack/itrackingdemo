@@ -308,6 +308,7 @@
 		5A03E488158BA4730068B60D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Face Hunter/Face Hunter-Prefix.pch";
 				INFOPLIST_FILE = "Face Hunter/Face Hunter-Info.plist";

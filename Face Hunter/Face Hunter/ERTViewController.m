@@ -117,6 +117,7 @@ GLfloat gPreviewVerts[16] =
 {
     leftEye = left;
     rightEye = right;
+//    printf("left %lf -- right %lf \n",left.x, right.x);
     
 }
 - (void) checkGLErrors: (int) line
@@ -311,15 +312,29 @@ GLfloat gPreviewVerts[16] =
     modelViewMatrix = camera.current;
     
     
-    leftEye = GLKVector2AddScalar(leftEye, -0.5f);
-    rightEye = GLKVector2AddScalar(rightEye, -0.5f);
+    GLKVector2 le = GLKVector2AddScalar(leftEye, -0.5f);
+    GLKVector2 re = GLKVector2AddScalar(rightEye, -0.5f);
     
-    GLKVector2 center = GLKVector2DivideScalar(GLKVector2Multiply(leftEye, rightEye), 2);
-    center.x *=4.f;
-    center.y *=3.f;
-    GLKVector3 e2 ={center.x,center.y, 3.f};
+    GLKVector2 center = GLKVector2DivideScalar(GLKVector2Add(le, re), 2);
+    center.x *=1.5*4.f;
+    center.y *=1.5*3.f;
+    GLKVector3 e2 ={-center.x,center.y, 3.f};
     camera.eye = e2;
     
+//    printf("center x= %lf -- center y= %lf \n",center.x, center.y);
+    
+    GLKVector2 subLeftRight = GLKVector2Subtract(rightEye, leftEye);
+    
+    GLKVector3 up = {-subLeftRight.y, subLeftRight.x, 0.f};
+        
+    
+    up = GLKVector3Normalize(up);
+    up.x = -up.x;
+    if (up.x == up.x && up.y == up.y){
+        camera.up = up;
+    }
+    
+    //    printf("center x= %lf -- center y= %lf \n",up.x, up.y);
     //GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
     //modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
     //modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
