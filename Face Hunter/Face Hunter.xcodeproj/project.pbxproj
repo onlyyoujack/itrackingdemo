@@ -20,6 +20,7 @@
 		5A03E47E158BA4730068B60D /* ERTViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A03E47D158BA4730068B60D /* ERTViewController.m */; };
 		5A03E481158BA4730068B60D /* ERTViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E47F158BA4730068B60D /* ERTViewController_iPhone.xib */; };
 		5A03E484158BA4730068B60D /* ERTViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E482158BA4730068B60D /* ERTViewController_iPad.xib */; };
+		5A03E48C158BA6750068B60D /* ERTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A03E48B158BA6750068B60D /* ERTCamera.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,8 @@
 		5A03E47D158BA4730068B60D /* ERTViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ERTViewController.m; sourceTree = "<group>"; };
 		5A03E480158BA4730068B60D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ERTViewController_iPhone.xib; sourceTree = "<group>"; };
 		5A03E483158BA4730068B60D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ERTViewController_iPad.xib; sourceTree = "<group>"; };
+		5A03E48A158BA6750068B60D /* ERTCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ERTCamera.h; sourceTree = "<group>"; };
+		5A03E48B158BA6750068B60D /* ERTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ERTCamera.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +95,8 @@
 			isa = PBXGroup;
 			children = (
 				5A03E475158BA4720068B60D /* ERTAppDelegate.h */,
+				5A03E48A158BA6750068B60D /* ERTCamera.h */,
+				5A03E48B158BA6750068B60D /* ERTCamera.m */,
 				5A03E476158BA4730068B60D /* ERTAppDelegate.m */,
 				5A03E478158BA4730068B60D /* Shader.fsh */,
 				5A03E47A158BA4730068B60D /* Shader.vsh */,
@@ -185,6 +190,7 @@
 				5A03E473158BA4720068B60D /* main.m in Sources */,
 				5A03E477158BA4730068B60D /* ERTAppDelegate.m in Sources */,
 				5A03E47E158BA4730068B60D /* ERTViewController.m in Sources */,
+				5A03E48C158BA6750068B60D /* ERTCamera.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
