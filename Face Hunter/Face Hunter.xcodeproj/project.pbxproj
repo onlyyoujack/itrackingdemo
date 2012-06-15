@@ -21,6 +21,9 @@
 		5A03E481158BA4730068B60D /* ERTViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E47F158BA4730068B60D /* ERTViewController_iPhone.xib */; };
 		5A03E484158BA4730068B60D /* ERTViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E482158BA4730068B60D /* ERTViewController_iPad.xib */; };
 		5A03E48C158BA6750068B60D /* ERTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A03E48B158BA6750068B60D /* ERTCamera.m */; };
+		EF8974FB158BAEBE00E26253 /* ERTCaptureSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8974FA158BAEBE00E26253 /* ERTCaptureSession.m */; };
+		EF8974FE158BB24D00E26253 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF8974FD158BB24D00E26253 /* AVFoundation.framework */; };
+		EF897500158BB28100E26253 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF8974FF158BB28100E26253 /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +47,10 @@
 		5A03E483158BA4730068B60D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ERTViewController_iPad.xib; sourceTree = "<group>"; };
 		5A03E48A158BA6750068B60D /* ERTCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ERTCamera.h; sourceTree = "<group>"; };
 		5A03E48B158BA6750068B60D /* ERTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ERTCamera.m; sourceTree = "<group>"; };
+		EF8974F9158BAEBE00E26253 /* ERTCaptureSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ERTCaptureSession.h; sourceTree = "<group>"; };
+		EF8974FA158BAEBE00E26253 /* ERTCaptureSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ERTCaptureSession.m; sourceTree = "<group>"; };
+		EF8974FD158BB24D00E26253 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		EF8974FF158BB28100E26253 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +58,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF897500158BB28100E26253 /* CoreVideo.framework in Frameworks */,
+				EF8974FE158BB24D00E26253 /* AVFoundation.framework in Frameworks */,
 				5A03E463158BA4720068B60D /* UIKit.framework in Frameworks */,
 				5A03E465158BA4720068B60D /* Foundation.framework in Frameworks */,
 				5A03E467158BA4720068B60D /* CoreGraphics.framework in Frameworks */,
@@ -65,6 +74,8 @@
 		5A03E453158BA4720068B60D = {
 			isa = PBXGroup;
 			children = (
+				EF8974FF158BB28100E26253 /* CoreVideo.framework */,
+				EF8974FD158BB24D00E26253 /* AVFoundation.framework */,
 				5A03E46C158BA4720068B60D /* Face Hunter */,
 				5A03E461158BA4720068B60D /* Frameworks */,
 				5A03E45F158BA4720068B60D /* Products */,
@@ -95,6 +106,8 @@
 			isa = PBXGroup;
 			children = (
 				5A03E475158BA4720068B60D /* ERTAppDelegate.h */,
+				EF8974F9158BAEBE00E26253 /* ERTCaptureSession.h */,
+				EF8974FA158BAEBE00E26253 /* ERTCaptureSession.m */,
 				5A03E48A158BA6750068B60D /* ERTCamera.h */,
 				5A03E48B158BA6750068B60D /* ERTCamera.m */,
 				5A03E476158BA4730068B60D /* ERTAppDelegate.m */,
@@ -191,6 +204,7 @@
 				5A03E477158BA4730068B60D /* ERTAppDelegate.m in Sources */,
 				5A03E47E158BA4730068B60D /* ERTViewController.m in Sources */,
 				5A03E48C158BA6750068B60D /* ERTCamera.m in Sources */,
+				EF8974FB158BAEBE00E26253 /* ERTCaptureSession.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,6 +324,7 @@
 				5A03E489158BA4730068B60D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -8,7 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import "ERTCaptureSession.h"
 
 @interface ERTViewController : GLKViewController
+{
+    ERTCaptureSession *session;
+    IBOutlet UIView *previewLayer;
+}
+
+@property (assign) IBOutlet UIView *previewLayer;
 
 @end

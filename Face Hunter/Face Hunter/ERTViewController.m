@@ -97,7 +97,7 @@ GLfloat gCubeVertexData[216] =
 @end
 
 @implementation ERTViewController
-
+@synthesize previewLayer;
 - (void)dealloc
 {
     [_context release];
@@ -108,6 +108,8 @@ GLfloat gCubeVertexData[216] =
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    session = [[ERTCaptureSession alloc] initWithView:previewLayer];
+    [session startRecording];
     
     self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
 
