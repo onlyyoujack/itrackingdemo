@@ -15,6 +15,8 @@ enum
 {
     UNIFORM_MODELVIEWPROJECTION_MATRIX,
     UNIFORM_NORMAL_MATRIX,
+    UNIFORM_SAMP_Y,
+    UNIFORM_SAMP_UV,
     NUM_UNIFORMS
 };
 GLint uniforms[NUM_UNIFORMS];
@@ -24,6 +26,7 @@ enum
 {
     ATTRIB_VERTEX,
     ATTRIB_NORMAL,
+    ATTRIB_COORD,
     NUM_ATTRIBUTES
 };
 
@@ -74,19 +77,29 @@ GLfloat gCubeVertexData[216] =
     -0.5f, 0.5f, -0.5f,        0.0f, 0.0f, -1.0f
 };
 
+GLfloat gPreviewVerts[16] =
+{
+    0.75f,-0.95f,         0.f,0.f,
+    0.95f,-0.95f,         0.6875f, 0.f,
+    0.95f,-0.79f,         0.6875f, 0.5625f,
+    0.75f,-0.79f,         0.f, 0.5625f
+};
 @interface ERTViewController () {
-    GLuint _program;
+    GLuint _program, _previewProgram;
     
     GLKMatrix4 _modelViewProjectionMatrix;
     GLKMatrix3 _normalMatrix;
     float _rotation;
     
-    GLuint _vertexArray;
-    GLuint _vertexBuffer;
+    GLuint _vertexArray, _prevArray;
+    GLuint _vertexBuffer, _prevBuf;
+    
+    GLuint _texY, _texUV;
+    
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
-
+- (void) checkGLErrors: (int) line;
 - (void)setupGL;
 - (void)tearDownGL;
 
@@ -97,7 +110,43 @@ GLfloat gCubeVertexData[216] =
 @end
 
 @implementation ERTViewController
-@synthesize previewLayer;
+
+- (void) checkGLErrors: (int) line
+{
+    GLint err = glGetError();
+    
+    switch(err)
+    {
+        case GL_NO_ERROR:
+            break;
+        case GL_INVALID_ENUM:
+            NSLog(@"%d: Invalid Enum", line );
+            break;
+        case GL_INVALID_VALUE:
+            NSLog(@"%d: Invalid Value", line );
+            break;
+        case GL_INVALID_OPERATION:
+            NSLog(@"%d: Invalid Operation", line );
+            break;
+        case GL_OUT_OF_MEMORY:
+            NSLog(@"%d: Out of Memory", line );
+            break;
+    }
+}
+
+- (void) updateTextureData: (uint8_t*) frame_NV12
+{
+    int w = 352;
+    int h = 288;
+    int hh = h/2;
+    glActiveTexture(GL_TEXTURE0);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, frame_NV12);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glTexSubImage2D(GL_TEXTURE_2D, 0,0,0,w,hh,GL_LUMINANCE_ALPHA,GL_UNSIGNED_BYTE, frame_NV12+(w*h));
+    [self checkGLErrors:__LINE__];
+    
+}
 - (void)dealloc
 {
     [_context release];
@@ -108,7 +157,8 @@ GLfloat gCubeVertexData[216] =
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    session = [[ERTCaptureSession alloc] initWithView:previewLayer];
+    session = [[ERTCaptureSession alloc] initWithView:nil];
+    session.delegate = self;
     [session startRecording];
     
     self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
@@ -122,6 +172,7 @@ GLfloat gCubeVertexData[216] =
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     
     [self setupGL];
+    
 }
 
 - (void)viewDidUnload
@@ -162,10 +213,21 @@ GLfloat gCubeVertexData[216] =
     self.effect.light0.diffuseColor = GLKVector4Make(1.0f, 0.4f, 0.4f, 1.0f);
     
     glEnable(GL_DEPTH_TEST);
-    
+      [self checkGLErrors:__LINE__];
     glGenVertexArraysOES(1, &_vertexArray);
-    glBindVertexArrayOES(_vertexArray);
+    glGenVertexArraysOES(1, &_prevArray);
+    glBindVertexArrayOES(_prevArray);
+    glGenBuffers(1,&_prevBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, _prevBuf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gPreviewVerts), gPreviewVerts, GL_STATIC_DRAW);
     
+    glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 16, BUFFER_OFFSET(0));
+    glEnableVertexAttribArray(ATTRIB_COORD);
+    glVertexAttribPointer(ATTRIB_COORD, 2, GL_FLOAT, GL_FALSE, 16, BUFFER_OFFSET(8));
+    
+    glBindVertexArrayOES(_vertexArray);
+      [self checkGLErrors:__LINE__];
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(gCubeVertexData), gCubeVertexData, GL_STATIC_DRAW);
@@ -176,6 +238,29 @@ GLfloat gCubeVertexData[216] =
     glVertexAttribPointer(GLKVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(12));
     
     glBindVertexArrayOES(0);
+      [self checkGLErrors:__LINE__];
+    glGenTextures(1,&_texUV);
+    glGenTextures(1, &_texY);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _texY);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 352, 288, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, 0);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    
+    glActiveTexture(GL_TEXTURE1);
+    
+    glBindTexture(GL_TEXTURE_2D, _texUV);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, 352, 288,0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 0);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+      [self checkGLErrors:__LINE__];
 }
 
 - (void)tearDownGL
@@ -232,9 +317,9 @@ GLfloat gCubeVertexData[216] =
     glBindVertexArrayOES(_vertexArray);
     
     // Render the object with GLKit
-    [self.effect prepareToDraw];
+   // [self.effect prepareToDraw];
     
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+   // glDrawArrays(GL_TRIANGLES, 0, 36);
     
     // Render the object again with ES2
     glUseProgram(_program);
@@ -243,15 +328,82 @@ GLfloat gCubeVertexData[216] =
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix.m);
     
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    
+   // glUseProgram(_previewProgram);
+    
+   // glBindVertexArrayOES(_prevArray);
+   // glBindBuffer(GL_ARRAY_BUFFER, _prevBuf  );
+   // glUniform1i(uniforms[UNIFORM_SAMP_Y], GL_TEXTURE0);
+   // glUniform1i(uniforms[UNIFORM_SAMP_UV], GL_TEXTURE1);
+    
+   // [self checkGLErrors:__LINE__];
+
+ //   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+  //  [self checkGLErrors:__LINE__];
 }
 
 #pragma mark -  OpenGL ES 2 shader compilation
 
 - (BOOL)loadShaders
 {
-    GLuint vertShader, fragShader;
-    NSString *vertShaderPathname, *fragShaderPathname;
+    GLuint vertShader, fragShader, fsPrev, vsPrev;
+    NSString *vertShaderPathname, *fragShaderPathname, *fsPrevPath, *vsPrevPath;
     
+    _previewProgram = glCreateProgram();
+    
+    fsPrevPath = [[NSBundle mainBundle] pathForResource:@"Preview" ofType:@"fsh"];
+    vsPrevPath = [[NSBundle mainBundle] pathForResource:@"Preview" ofType:@"vsh"];
+    
+    {
+        if (![self compileShader:&vsPrev type:GL_VERTEX_SHADER file: vsPrevPath])
+        {
+            printf("crap");
+            return NO;
+        }
+        if (![self compileShader:&fsPrev type:GL_FRAGMENT_SHADER file: fsPrevPath])
+        {
+            printf("poops");
+            return NO;
+        }
+          [self checkGLErrors:__LINE__];
+        glAttachShader(_previewProgram, vsPrev);
+        glAttachShader(_previewProgram, fsPrev);
+        
+        glBindAttribLocation(_previewProgram, ATTRIB_VERTEX, "aPos");
+        glBindAttribLocation(_previewProgram, ATTRIB_COORD, "aCoord");
+        
+        if (![self linkProgram:_previewProgram]) {
+            NSLog(@"Failed to link program: %d", _program);
+            
+            if (vsPrev) {
+                glDeleteShader(vsPrev);
+                vertShader = 0;
+            }
+            if (fsPrev) {
+                glDeleteShader(fsPrev);
+                fragShader = 0;
+            }
+            if (_program) {
+                glDeleteProgram(_program);
+                _program = 0;
+            }
+            
+            return NO;
+        }
+
+        glUseProgram(_previewProgram);
+        
+        uniforms[UNIFORM_SAMP_Y] = glGetUniformLocation(_previewProgram, "uSampY");
+        uniforms[UNIFORM_SAMP_UV] = glGetUniformLocation(_previewProgram, "uSampUV");
+        
+        glUniform1i(uniforms[UNIFORM_SAMP_Y], GL_TEXTURE0);
+        glUniform1i(uniforms[UNIFORM_SAMP_UV], GL_TEXTURE1);
+        
+        glDeleteShader(vsPrev);
+        glDeleteShader(fsPrev);
+          [self checkGLErrors:__LINE__];
+    }
     // Create shader program.
     _program = glCreateProgram();
     
@@ -268,6 +420,7 @@ GLfloat gCubeVertexData[216] =
         NSLog(@"Failed to compile fragment shader");
         return NO;
     }
+    
     
     // Attach vertex shader to program.
     glAttachShader(_program, vertShader);
@@ -313,7 +466,7 @@ GLfloat gCubeVertexData[216] =
         glDetachShader(_program, fragShader);
         glDeleteShader(fragShader);
     }
-    
+      [self checkGLErrors:__LINE__];
     return YES;
 }
 
@@ -327,7 +480,7 @@ GLfloat gCubeVertexData[216] =
         NSLog(@"Failed to load vertex shader");
         return NO;
     }
-    
+      [self checkGLErrors:__LINE__];
     *shader = glCreateShader(type);
     glShaderSource(*shader, 1, &source, NULL);
     glCompileShader(*shader);
@@ -348,7 +501,7 @@ GLfloat gCubeVertexData[216] =
         glDeleteShader(*shader);
         return NO;
     }
-    
+      [self checkGLErrors:__LINE__];
     return YES;
 }
 

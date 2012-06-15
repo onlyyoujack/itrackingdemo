@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A025232158BD80600B6275D /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A025231158BD80600B6275D /* CoreImage.framework */; };
 		5A03E463158BA4720068B60D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A03E462158BA4720068B60D /* UIKit.framework */; };
 		5A03E465158BA4720068B60D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A03E464158BA4720068B60D /* Foundation.framework */; };
 		5A03E467158BA4720068B60D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A03E466158BA4720068B60D /* CoreGraphics.framework */; };
@@ -21,12 +22,18 @@
 		5A03E481158BA4730068B60D /* ERTViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E47F158BA4730068B60D /* ERTViewController_iPhone.xib */; };
 		5A03E484158BA4730068B60D /* ERTViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E482158BA4730068B60D /* ERTViewController_iPad.xib */; };
 		5A03E48C158BA6750068B60D /* ERTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A03E48B158BA6750068B60D /* ERTCamera.m */; };
+		5A03E4A0158BC0A20068B60D /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A03E49F158BC0A20068B60D /* CoreMedia.framework */; };
+		5A03E4A2158BC11B0068B60D /* Preview.vsh in Sources */ = {isa = PBXBuildFile; fileRef = 5A03E4A1158BC11B0068B60D /* Preview.vsh */; };
+		5A03E4A4158BC12E0068B60D /* Preview.fsh in Sources */ = {isa = PBXBuildFile; fileRef = 5A03E4A3158BC12E0068B60D /* Preview.fsh */; };
+		5A03E4A5158BCB980068B60D /* Preview.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E4A1158BC11B0068B60D /* Preview.vsh */; };
+		5A03E4A6158BCB980068B60D /* Preview.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 5A03E4A3158BC12E0068B60D /* Preview.fsh */; };
 		EF8974FB158BAEBE00E26253 /* ERTCaptureSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8974FA158BAEBE00E26253 /* ERTCaptureSession.m */; };
 		EF8974FE158BB24D00E26253 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF8974FD158BB24D00E26253 /* AVFoundation.framework */; };
 		EF897500158BB28100E26253 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF8974FF158BB28100E26253 /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5A025231158BD80600B6275D /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		5A03E45E158BA4720068B60D /* Face Hunter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Face Hunter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A03E462158BA4720068B60D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5A03E464158BA4720068B60D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -47,6 +54,10 @@
 		5A03E483158BA4730068B60D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ERTViewController_iPad.xib; sourceTree = "<group>"; };
 		5A03E48A158BA6750068B60D /* ERTCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ERTCamera.h; sourceTree = "<group>"; };
 		5A03E48B158BA6750068B60D /* ERTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ERTCamera.m; sourceTree = "<group>"; };
+		5A03E495158BBC160068B60D /* ERTGLCameraOutputProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ERTGLCameraOutputProtocol.h; sourceTree = "<group>"; };
+		5A03E49F158BC0A20068B60D /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		5A03E4A1158BC11B0068B60D /* Preview.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Preview.vsh; sourceTree = "<group>"; };
+		5A03E4A3158BC12E0068B60D /* Preview.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Preview.fsh; sourceTree = "<group>"; };
 		EF8974F9158BAEBE00E26253 /* ERTCaptureSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ERTCaptureSession.h; sourceTree = "<group>"; };
 		EF8974FA158BAEBE00E26253 /* ERTCaptureSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ERTCaptureSession.m; sourceTree = "<group>"; };
 		EF8974FD158BB24D00E26253 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -58,6 +69,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A025232158BD80600B6275D /* CoreImage.framework in Frameworks */,
+				5A03E4A0158BC0A20068B60D /* CoreMedia.framework in Frameworks */,
 				EF897500158BB28100E26253 /* CoreVideo.framework in Frameworks */,
 				EF8974FE158BB24D00E26253 /* AVFoundation.framework in Frameworks */,
 				5A03E463158BA4720068B60D /* UIKit.framework in Frameworks */,
@@ -74,6 +87,8 @@
 		5A03E453158BA4720068B60D = {
 			isa = PBXGroup;
 			children = (
+				5A025231158BD80600B6275D /* CoreImage.framework */,
+				5A03E49F158BC0A20068B60D /* CoreMedia.framework */,
 				EF8974FF158BB28100E26253 /* CoreVideo.framework */,
 				EF8974FD158BB24D00E26253 /* AVFoundation.framework */,
 				5A03E46C158BA4720068B60D /* Face Hunter */,
@@ -118,6 +133,9 @@
 				5A03E47F158BA4730068B60D /* ERTViewController_iPhone.xib */,
 				5A03E482158BA4730068B60D /* ERTViewController_iPad.xib */,
 				5A03E46D158BA4720068B60D /* Supporting Files */,
+				5A03E495158BBC160068B60D /* ERTGLCameraOutputProtocol.h */,
+				5A03E4A1158BC11B0068B60D /* Preview.vsh */,
+				5A03E4A3158BC12E0068B60D /* Preview.fsh */,
 			);
 			path = "Face Hunter";
 			sourceTree = "<group>";
@@ -185,6 +203,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A03E4A5158BCB980068B60D /* Preview.vsh in Resources */,
+				5A03E4A6158BCB980068B60D /* Preview.fsh in Resources */,
 				5A03E471158BA4720068B60D /* InfoPlist.strings in Resources */,
 				5A03E479158BA4730068B60D /* Shader.fsh in Resources */,
 				5A03E47B158BA4730068B60D /* Shader.vsh in Resources */,
@@ -205,6 +225,8 @@
 				5A03E47E158BA4730068B60D /* ERTViewController.m in Sources */,
 				5A03E48C158BA6750068B60D /* ERTCamera.m in Sources */,
 				EF8974FB158BAEBE00E26253 /* ERTCaptureSession.m in Sources */,
+				5A03E4A2158BC11B0068B60D /* Preview.vsh in Sources */,
+				5A03E4A4158BC12E0068B60D /* Preview.fsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

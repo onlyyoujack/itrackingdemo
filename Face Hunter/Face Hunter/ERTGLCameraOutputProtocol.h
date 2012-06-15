@@ -10,4 +10,6 @@
 
 @protocol ERTGLCameraOutputProtocol <NSObject>
 
+- (void) updateTextureData: (uint8_t*) frame_NV12;
+
 @end

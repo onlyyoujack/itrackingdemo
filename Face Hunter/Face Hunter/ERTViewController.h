@@ -9,13 +9,12 @@
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 #import "ERTCaptureSession.h"
+#import "ERTGLCameraOutputProtocol.h"
 
-@interface ERTViewController : GLKViewController
+@interface ERTViewController : GLKViewController<ERTGLCameraOutputProtocol>
 {
     ERTCaptureSession *session;
-    IBOutlet UIView *previewLayer;
 }
 
-@property (assign) IBOutlet UIView *previewLayer;
 
 @end
