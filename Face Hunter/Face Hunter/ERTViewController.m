@@ -97,7 +97,7 @@ GLfloat gPreviewVerts[16] =
     GLuint _texY, _texUV;
     
     GLKVector2 leftEye, rightEye;
-    
+    ERTCamera *camera;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -168,6 +168,13 @@ GLfloat gPreviewVerts[16] =
     session = [[ERTCaptureSession alloc] initWithView:nil];
     session.delegate = self;
     [session startRecording];
+    camera = [[ERTCamera alloc] init];
+    GLKVector3 e = {0.f,0.f,3.f};
+    GLKVector3 u = {0.f,1.f,0.f};
+     GLKVector3 t = {0.f,0.f,0.f};
+    camera.eye = e;
+    camera.up = u;
+    camera.target= t;
     
     self.context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
 
@@ -299,7 +306,21 @@ GLfloat gPreviewVerts[16] =
     baseModelViewMatrix = GLKMatrix4Rotate(baseModelViewMatrix, _rotation, 0.0f, 1.0f, 0.0f);
     
     // Compute the model view matrix for the object rendered with GLKit
-    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
+    GLKMatrix4 modelViewMatrix;
+    [camera update];
+    modelViewMatrix = camera.current;
+    
+    
+    leftEye = GLKVector2AddScalar(leftEye, -0.5f);
+    rightEye = GLKVector2AddScalar(rightEye, -0.5f);
+    
+    GLKVector2 center = GLKVector2DivideScalar(GLKVector2Multiply(leftEye, rightEye), 2);
+    center.x *=4.f;
+    center.y *=3.f;
+    GLKVector3 e2 ={center.x,center.y, 3.f};
+    camera.eye = e2;
+    
+    //GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
     //modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
     //modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
     

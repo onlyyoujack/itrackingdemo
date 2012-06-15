@@ -102,7 +102,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                         
                         leftEyeCenter.x = f.leftEyePosition.x/192.0;
                         leftEyeCenter.y = f.leftEyePosition.y/144.0;
-                        printf("has left %lf %lf \n", leftEyeCenter.x, leftEyeCenter.y);
+//                        printf("has left %lf %lf \n", leftEyeCenter.x, leftEyeCenter.y);
                         
                         lrCount ++ ;
                     }
@@ -110,7 +110,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                     {
                         rightEyeCenter.x = f.rightEyePosition.x/192.0;
                         rightEyeCenter.y = f.rightEyePosition.y/144.0;
-                        printf("has right %lf %lf \n", rightEyeCenter.x, rightEyeCenter.y);
+//                        printf("has right %lf %lf \n", rightEyeCenter.x, rightEyeCenter.y);
                         
                         lrCount ++ ;
                     }

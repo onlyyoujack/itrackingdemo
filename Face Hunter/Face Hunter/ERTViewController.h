@@ -10,6 +10,7 @@
 #import <GLKit/GLKit.h>
 #import "ERTCaptureSession.h"
 #import "ERTGLCameraOutputProtocol.h"
+#import "ERTCamera.h"
 
 @interface ERTViewController : GLKViewController<ERTGLCameraOutputProtocol>
 {
