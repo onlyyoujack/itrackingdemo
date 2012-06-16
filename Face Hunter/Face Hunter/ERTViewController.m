@@ -38,8 +38,8 @@ GLfloat gCubeVertexData[216] =
     0.5f, 0.5f, -0.5f,         1.0f, 0.0f, 0.0f,
     0.5f, -0.5f, 0.5f,         1.0f, 0.0f, 0.0f,
     0.5f, -0.5f, 0.5f,         1.0f, 0.0f, 0.0f,
-    0.5f, 0.5f, -0.5f,          1.0f, 0.0f, 0.0f,
-    0.5f, 0.5f, 0.5f,         1.0f, 0.0f, 0.0f,
+    0.5f, 0.5f, -0.5f,         1.0f, 0.0f, 0.0f,
+    0.5f, 0.5f, 0.5f,          1.0f, 0.0f, 0.0f,
     
     0.5f, 0.5f, -0.5f,         0.0f, 1.0f, 0.0f,
     -0.5f, 0.5f, -0.5f,        0.0f, 1.0f, 0.0f,
@@ -84,7 +84,86 @@ GLfloat gPreviewVerts[16] =
     0.95f,-0.79f,         0.6875f, 0.5625f,
     0.75f,-0.79f,         0.f, 0.5625f
 };
+
+void generateCube(GLKVector3 center, float w, float h, float l, GLfloat* data)
+{
+    w /= 2.f;
+   // w += center.x;
+    h /= 2.f;
+   // h += center.y;
+    l /= 2.f;
+   // l += center.z;
+    
+    float nw = center.x - w;
+    w += center.x;
+    
+    float nh = center.y - h;
+    h += center.y;
+    
+    float nl = center.z - l;
+    l += center.z;
+    
+    GLfloat verts[216] =
+    {
+        // Data layout for each line below is:
+        // positionX, positionY, positionZ,     normalX, normalY, normalZ,
+        w, nh, nl,        1.0f, 0.0f, 0.0f,
+        w, h, nl,         1.0f, 0.0f, 0.0f,
+        w, nh, l,         1.0f, 0.0f, 0.0f,
+        w, nh, l,         1.0f, 0.0f, 0.0f,
+        w, h, nl,         1.0f, 0.0f, 0.0f,
+        w, h, l,          1.0f, 0.0f, 0.0f,
+        
+        w, h, nl,         0.0f, 1.0f, 0.0f,
+        nw, h, nl,        0.0f, 1.0f, 0.0f,
+        w, h, l,          0.0f, 1.0f, 0.0f,
+        w, h, l,          0.0f, 1.0f, 0.0f,
+        nw, h, nl,        0.0f, 1.0f, 0.0f,
+        nw, h, l,         0.0f, 1.0f, 0.0f,
+        
+        nw, h, nl,        -1.0f, 0.0f, 0.0f,
+        nw, nh, nl,       -1.0f, 0.0f, 0.0f,
+        nw, h, l,         -1.0f, 0.0f, 0.0f,
+        nw, h, l,         -1.0f, 0.0f, 0.0f,
+        nw, nh, nl,       -1.0f, 0.0f, 0.0f,
+        nw, nh, l,        -1.0f, 0.0f, 0.0f,
+        
+        nw, nh, nl,       0.0f, -1.0f, 0.0f,
+        w, nh, nl,        0.0f, -1.0f, 0.0f,
+        nw, nh, l,        0.0f, -1.0f, 0.0f,
+        nw, nh, l,        0.0f, -1.0f, 0.0f,
+        w, nh, nl,        0.0f, -1.0f, 0.0f,
+        w, nh, l,         0.0f, -1.0f, 0.0f,
+        
+        w, h, l,          0.0f, 0.0f, 1.0f,
+        nw, h, l,         0.0f, 0.0f, 1.0f,
+        w, nh, l,         0.0f, 0.0f, 1.0f,
+        w, nh, l,         0.0f, 0.0f, 1.0f,
+        nw, h, l,         0.0f, 0.0f, 1.0f,
+        nw, nh,l,        0.0f, 0.0f, 1.0f,
+        
+        w, nh, nl,        0.0f, 0.0f, -1.0f,
+        nw, nh, nl,       0.0f, 0.0f, -1.0f,
+        w, h, nl,         0.0f, 0.0f, -1.0f,
+        w, h, nl,         0.0f, 0.0f, -1.0f,
+        nw, nh, nl,       0.0f, 0.0f, -1.0f,
+        nw, h, nl,        0.0f, 0.0f, -1.0f
+    };
+
+    memcpy(data,verts,sizeof(verts));
+    
+}
+
+#define SAMPLE_COUNT 20
+#define W 0.75
+
 @interface ERTViewController () {
+    
+    float weights[SAMPLE_COUNT];
+    
+    NSMutableArray* centerSamples;
+    NSMutableArray* upSamples;
+    
     GLuint _program, _previewProgram;
     
     GLKMatrix4 _modelViewProjectionMatrix;
@@ -109,15 +188,54 @@ GLfloat gPreviewVerts[16] =
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file;
 - (BOOL)linkProgram:(GLuint)prog;
 - (BOOL)validateProgram:(GLuint)prog;
+- (GLKVector2) computWeightedMean: (NSMutableArray*) array;
+
 @end
 
 @implementation ERTViewController
+
+- (GLKVector2) computWeightedMean: (NSMutableArray*) array
+{
+    GLKVector2 ov;
+    ov.x = 0.f;
+    ov.y = 0.f;
+    
+    int i = 0;
+    for ( NSValue * v in array)
+    {
+        CGPoint val = [v CGPointValue];
+        
+        ov.x += val.x * weights[i];
+        ov.y += val.y * weights[i++];
+    }
+    
+    return ov;
+}
 
 - (void) setEyePositions:(GLKVector2)left Right:(GLKVector2)right
 {
     leftEye = left;
     rightEye = right;
 //    printf("left %lf -- right %lf \n",left.x, right.x);
+    
+    GLKVector2 le = GLKVector2AddScalar(leftEye, -0.5f);
+    GLKVector2 re = GLKVector2AddScalar(rightEye, -0.5f);
+    
+    GLKVector2 center = GLKVector2DivideScalar(GLKVector2Add(le, re), 2);
+    center.x *=1.5*4.f;
+    center.y *=1.5*3.f;
+    
+    [centerSamples insertObject:[NSValue valueWithCGPoint:CGPointMake(center.x,center.y)] atIndex:0];
+    if(centerSamples.count > SAMPLE_COUNT)
+        [centerSamples removeLastObject];
+    
+    
+    GLKVector2 subLeftRight = GLKVector2Subtract(rightEye, leftEye);
+    
+    [upSamples insertObject:[NSValue valueWithCGPoint:CGPointMake(subLeftRight.x, subLeftRight.y)] atIndex:0];
+    if(upSamples.count > SAMPLE_COUNT)
+        [upSamples removeLastObject];
+    
     
 }
 - (void) checkGLErrors: (int) line
@@ -166,13 +284,27 @@ GLfloat gPreviewVerts[16] =
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    centerSamples = [[NSMutableArray alloc]init];
+    upSamples = [[NSMutableArray alloc]init];
+    
+    
+    // prepare weights
+    
+    float v = (1.0 - pow(W, SAMPLE_COUNT)) / (1.0 - W);
+    
+    for ( int i = 0 ; i < SAMPLE_COUNT ; i ++ )
+    {
+        weights[i] = pow(W, i) / v;
+    }
+    
     session = [[ERTCaptureSession alloc] initWithView:nil];
     session.delegate = self;
     [session startRecording];
     camera = [[ERTCamera alloc] init];
     GLKVector3 e = {0.f,0.f,3.f};
     GLKVector3 u = {0.f,1.f,0.f};
-     GLKVector3 t = {0.f,0.f,0.f};
+     GLKVector3 t = {0.f,0.f,-10.f};
     camera.eye = e;
     camera.up = u;
     camera.target= t;
@@ -218,6 +350,7 @@ GLfloat gPreviewVerts[16] =
     }
 }
 
+
 - (void)setupGL
 {
     [EAGLContext setCurrentContext:self.context];
@@ -246,7 +379,48 @@ GLfloat gPreviewVerts[16] =
       [self checkGLErrors:__LINE__];
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gCubeVertexData), gCubeVertexData, GL_STATIC_DRAW);
+    
+    GLfloat * cubeData = (GLfloat*) malloc(sizeof(gCubeVertexData)*10);
+#define floff(i) (216*i)
+    {
+        GLKVector3 t = {2.f,0.f,-2.f};               // middle right
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData);
+    }
+    {
+        GLKVector3 t = {2.f,2.f,-2.f};              // top right
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(1));
+    }
+    {
+        GLKVector3 t = {2.f,-2.f,-2.f};              // bottom right
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(2));
+    }
+    {
+        GLKVector3 t = {0.f,2.f,-2.f};              // top middle
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(3));
+    }
+    {
+        GLKVector3 t = {-2.f,2.f,-2.f};              // top left
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(4));
+    }
+    {
+        GLKVector3 t = {-2.f,0.f,-2.f};              // middle left
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(5));
+    }
+    {
+        GLKVector3 t = {-2.f,-2.f,-2.f};              // bottom left
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(6));
+    }
+    {
+        GLKVector3 t = {0.f,-2.f,-2.f};              // bottom middle
+        generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(7));
+    }
+    
+    
+    
+    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gCubeVertexData)*8, cubeData, GL_STATIC_DRAW);
+    
+    free(cubeData);
     
     glEnableVertexAttribArray(GLKVertexAttribPosition);
     glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
@@ -301,31 +475,23 @@ GLfloat gPreviewVerts[16] =
     float aspect = fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
     GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(65.0f), aspect, 0.1f, 100.0f);
     
-    self.effect.transform.projectionMatrix = projectionMatrix;
-    
-    GLKMatrix4 baseModelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -4.0f);
-    baseModelViewMatrix = GLKMatrix4Rotate(baseModelViewMatrix, _rotation, 0.0f, 1.0f, 0.0f);
-    
+ //   self.effect.transform.projectionMatrix = projectionMatrix;
+ 
     // Compute the model view matrix for the object rendered with GLKit
     GLKMatrix4 modelViewMatrix;
     [camera update];
     modelViewMatrix = camera.current;
     
     
-    GLKVector2 le = GLKVector2AddScalar(leftEye, -0.5f);
-    GLKVector2 re = GLKVector2AddScalar(rightEye, -0.5f);
+
     
-    GLKVector2 center = GLKVector2DivideScalar(GLKVector2Add(le, re), 2);
-    center.x *=1.5*4.f;
-    center.y *=1.5*3.f;
-    GLKVector3 e2 ={-center.x,center.y, 3.f};
+    GLKVector2 o = [self computWeightedMean:centerSamples];
+    
+    GLKVector3 e2 ={-o.x,o.y, 3.f};
     camera.eye = e2;
-    
-//    printf("center x= %lf -- center y= %lf \n",center.x, center.y);
-    
-    GLKVector2 subLeftRight = GLKVector2Subtract(rightEye, leftEye);
-    
-    GLKVector3 up = {-subLeftRight.y, subLeftRight.x, 0.f};
+   
+    GLKVector2 u = [self computWeightedMean:upSamples];
+    GLKVector3 up = {-u.y, u.x, 0.f};
         
     
     up = GLKVector3Normalize(up);
@@ -334,17 +500,6 @@ GLfloat gPreviewVerts[16] =
         camera.up = up;
     }
     
-    //    printf("center x= %lf -- center y= %lf \n",up.x, up.y);
-    //GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
-    //modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
-    //modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
-    
-    //self.effect.transform.modelviewMatrix = modelViewMatrix;
-    
-    // Compute the model view matrix for the object rendered with ES2
-    //modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, 1.5f);
-    //modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
-    //modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
     
     _normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(modelViewMatrix), NULL);
     
@@ -360,31 +515,14 @@ GLfloat gPreviewVerts[16] =
     
     glBindVertexArrayOES(_vertexArray);
     
-    // Render the object with GLKit
-   // [self.effect prepareToDraw];
-    
-   // glDrawArrays(GL_TRIANGLES, 0, 36);
-    
-    // Render the object again with ES2
     glUseProgram(_program);
     
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, _modelViewProjectionMatrix.m);
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix.m);
     
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawArrays(GL_TRIANGLES, 0, 36*8);
     
-   // glUseProgram(_previewProgram);
-    
-   // glBindVertexArrayOES(_prevArray);
-   // glBindBuffer(GL_ARRAY_BUFFER, _prevBuf  );
-   // glUniform1i(uniforms[UNIFORM_SAMP_Y], GL_TEXTURE0);
-   // glUniform1i(uniforms[UNIFORM_SAMP_UV], GL_TEXTURE1);
-    
-   // [self checkGLErrors:__LINE__];
 
- //   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-  //  [self checkGLErrors:__LINE__];
 }
 
 #pragma mark -  OpenGL ES 2 shader compilation
