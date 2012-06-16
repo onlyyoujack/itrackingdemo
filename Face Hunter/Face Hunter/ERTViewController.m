@@ -218,24 +218,7 @@ void generateCube(GLKVector3 center, float w, float h, float l, GLfloat* data)
     rightEye = right;
 //    printf("left %lf -- right %lf \n",left.x, right.x);
     
-    GLKVector2 le = GLKVector2AddScalar(leftEye, -0.5f);
-    GLKVector2 re = GLKVector2AddScalar(rightEye, -0.5f);
-    
-    GLKVector2 center = GLKVector2DivideScalar(GLKVector2Add(le, re), 2);
-    center.x *=1.5*4.f;
-    center.y *=1.5*3.f;
-    
-    [centerSamples insertObject:[NSValue valueWithCGPoint:CGPointMake(center.x,center.y)] atIndex:0];
-    if(centerSamples.count > SAMPLE_COUNT)
-        [centerSamples removeLastObject];
-    
-    
-    GLKVector2 subLeftRight = GLKVector2Subtract(rightEye, leftEye);
-    
-    [upSamples insertObject:[NSValue valueWithCGPoint:CGPointMake(subLeftRight.x, subLeftRight.y)] atIndex:0];
-    if(upSamples.count > SAMPLE_COUNT)
-        [upSamples removeLastObject];
-    
+
     
 }
 - (void) checkGLErrors: (int) line
@@ -414,11 +397,14 @@ void generateCube(GLKVector3 center, float w, float h, float l, GLfloat* data)
         GLKVector3 t = {0.f,-2.f,-2.f};              // bottom middle
         generateCube(t, 0.5f, 0.25f, 8.f, cubeData+floff(7));
     }
+    {
+        GLKVector3 t = {0.f,0.f,-6.f};              // center
+        generateCube(t, 2.f, 2.f, 2.f, cubeData+floff(8));
+    }
     
     
     
-    
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gCubeVertexData)*8, cubeData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gCubeVertexData)*9, cubeData, GL_STATIC_DRAW);
     
     free(cubeData);
     
@@ -483,6 +469,28 @@ void generateCube(GLKVector3 center, float w, float h, float l, GLfloat* data)
     modelViewMatrix = camera.current;
     
     
+    GLKVector2 le = leftEye;//GLKVector2AddScalar(leftEye, -0.5f);
+    GLKVector2 re = rightEye;//GLKVector2AddScalar(rightEye, -0.5f);
+    le.y -= 0.5f;
+    re.y -= 0.5f;
+    le.x -= 0.75f;
+    re.x -= 0.75f;
+    GLKVector2 center = GLKVector2DivideScalar(GLKVector2Add(le, re), 2);
+    center.x *=1.5*4.f;
+    center.y *=1.5*3.f;
+    
+    [centerSamples insertObject:[NSValue valueWithCGPoint:CGPointMake(center.x,center.y)] atIndex:0];
+    if(centerSamples.count > SAMPLE_COUNT)
+        [centerSamples removeLastObject];
+    
+    
+    GLKVector2 subLeftRight = GLKVector2Subtract(rightEye, leftEye);
+    
+    [upSamples insertObject:[NSValue valueWithCGPoint:CGPointMake(subLeftRight.x, subLeftRight.y)] atIndex:0];
+    if(upSamples.count > SAMPLE_COUNT)
+        [upSamples removeLastObject];
+    
+    
 
     
     GLKVector2 o = [self computWeightedMean:centerSamples];
@@ -520,7 +528,7 @@ void generateCube(GLKVector3 center, float w, float h, float l, GLfloat* data)
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, _modelViewProjectionMatrix.m);
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix.m);
     
-    glDrawArrays(GL_TRIANGLES, 0, 36*8);
+    glDrawArrays(GL_TRIANGLES, 0, 36*9);
     
 
 }
